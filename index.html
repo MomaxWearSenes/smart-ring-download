@@ -55,156 +55,532 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-slate-100 min-h-screen flex items-center justify-center p-4 font-sans">
-    <div id="loading-container" class="text-center fade-in card">
-        <!-- 应用图标 -->
-        <div class="w-24 h-24 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center">
-            <i class="fa fa-rocket text-4xl text-primary"></i>
-        </div>
-        <!-- 加载动画 -->
-        <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full loading-spin mx-auto mb-6"></div>
-        <!-- 状态文本 -->
-        <h2 id="status-text" class="text-xl font-medium text-slate-800 mb-2">正在检测您的设备...</h2>
-        <p id="message-text" class="text-neutral mb-4">请稍候，我们将为您跳转到合适的下载页面</p>
-		<!-- 微信浏览器提示（iOS 默认隐藏） -->
-		<div id="wechat-tip-ios" class="wechat-tip hidden">
-			<p class="flex items-start">
-				<i class="fa fa-info-circle text-wechat mt-0.5 mr-2"></i>
-				<span>微信浏览器可能限制跳转，请点击右上角 <i class="fa fa-ellipsis-h ml-1"></i>，选择“用默认浏览器打开”以继续</span>
-			</p>
-		</div>
-
-		<!-- 微信浏览器提示（Android 默认隐藏） -->
-		<div id="wechat-tip-android" class="wechat-tip hidden">
-			<p class="flex items-start">
-				<i class="fa fa-info-circle text-wechat mt-0.5 mr-2"></i>
-				<span>微信浏览器可能限制跳转，请点击右上角 <i class="fa fa-ellipsis-h ml-1"></i>，选择“在浏览器中打开”以继续</span>
-			</p>
-		</div>
-        <!-- 手动跳转按钮（iOS 默认隐藏） -->
-        <div id="manual-jump" class="hidden mt-6">
-            <button id="jump-btn" class="btn btn-primary w-full mb-3">
-                <i class="fa fa-download mr-2"></i>手动跳转
-            </button>
-            <button id="help-btn" class="btn btn-outline w-full">
-                <i class="fa fa-question-circle mr-2"></i>遇到问题？
-            </button>
-        </div>
-		<!-- 手动跳转按钮（Android 默认隐藏） -->
-        <div id="manual-jump-android" class="hidden mt-6">
-            <button id="jump-btn-android" class="btn btn-primary w-full mb-3">
-                <i class="fa fa-download mr-2"></i>手动跳转
-            </button>
-        </div>
-        <!-- 帮助信息（默认隐藏） -->
-        <div id="help-info" class="hidden mt-4 text-left text-sm bg-slate-50 p-4 rounded-lg">
-            <h3 class="font-medium text-slate-700 mb-2">如何手动打开 TestFlight？</h3>
-            <ol class="list-decimal list-inside space-y-1">
-                <li>确保已安装 TestFlight 应用</li>
-                <li>如果在微信中，请先点击右上角在浏览器中打开</li>
-                <li>点击上方“手动跳转”按钮</li>
-                <li>当系统询问时，选择“打开”</li>
-                <li>在 TestFlight 中接受邀请</li>
-            </ol>
-        </div>
+<div id="loading-container" class="text-center fade-in card">
+    <!-- 应用图标 -->
+    <div class="w-24 h-24 mx-auto mb-6 bg-primary/10 rounded-full flex items-center justify-center">
+        <i class="fa fa-rocket text-4xl text-primary"></i>
+    </div>
+    <!-- 加载动画 -->
+    <div class="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full loading-spin mx-auto mb-6"></div>
+    <!-- 状态文本 -->
+    <h2 id="status-text" class="text-xl font-medium text-slate-800 mb-2">正在检测您的设备...</h2>
+    <p id="message-text" class="text-neutral mb-4">请稍候，我们将为您跳转到合适的下载页面</p>
+    <!-- 微信浏览器提示（iOS 默认隐藏） -->
+    <div id="wechat-tip-ios" class="wechat-tip hidden">
+        <p class="flex items-start">
+            <i class="fa fa-info-circle text-wechat mt-0.5 mr-2"></i>
+            <span id="wechat-tip-ios-text">微信浏览器可能限制跳转，请点击右上角 <i class="fa fa-ellipsis-h ml-1"></i>，选择"用默认浏览器打开"以继续</span>
+        </p>
     </div>
 
-	<script>
-		window.onload = function () {
-			const userAgent = navigator.userAgent;
-			const statusText = document.getElementById('status-text');
-			const messageText = document.getElementById('message-text');
-			const loadingContainer = document.getElementById('loading-container');
-			const manualJump = document.getElementById('manual-jump');
-			const manualJumpAndroid = document.getElementById('manual-jump-android');
-			const helpTip = document.getElementById('help-tip');
-			const jumpBtn = document.getElementById('jump-btn');
-			const jumpBtnAndroid = document.getElementById('jump-btn-android');
-			const helpBtn = document.getElementById('help-btn');
-			const helpInfo = document.getElementById('help-info');
-			// 获取两个不同的微信提示元素
-			const wechatTipIos = document.getElementById('wechat-tip-ios');
-			const wechatTipAndroid = document.getElementById('wechat-tip-android');
-			const isWechat = /MicroMessenger/i.test(userAgent);
-			// 新增系统类型判断
-			const isiOS = /iPhone|iPad|iPod/i.test(userAgent);
-			const isAndroid = /Android|Linux/i.test(userAgent);
+    <!-- 微信浏览器提示（Android 默认隐藏） -->
+    <div id="wechat-tip-android" class="wechat-tip hidden">
+        <p class="flex items-start">
+            <i class="fa fa-info-circle text-wechat mt-0.5 mr-2"></i>
+            <span id="wechat-tip-android-text">微信浏览器可能限制跳转，请点击右上角 <i class="fa fa-ellipsis-h ml-1"></i>，选择"在浏览器中打开"以继续</span>
+        </p>
+    </div>
+    <!-- 手动跳转按钮（iOS 默认隐藏） -->
+    <div id="manual-jump" class="hidden mt-6">
+        <button id="jump-btn" class="btn btn-primary w-full mb-3">
+            <i class="fa fa-download mr-2"></i><span id="manual-jump-text">手动跳转</span>
+        </button>
+        <button id="help-btn" class="btn btn-outline w-full">
+            <i class="fa fa-question-circle mr-2"></i><span id="help-btn-text">遇到问题？</span>
+        </button>
+    </div>
+    <!-- 手动跳转按钮（Android 默认隐藏） -->
+    <div id="manual-jump-android" class="hidden mt-6">
+        <button id="jump-btn-android" class="btn btn-primary w-full mb-3">
+            <i class="fa fa-download mr-2"></i><span id="manual-jump-android-text">手动跳转</span>
+        </button>
+    </div>
+    <!-- 帮助信息（默认隐藏） -->
+    <div id="help-info" class="hidden mt-4 text-left text-sm bg-slate-50 p-4 rounded-lg">
+        <h3 id="help-info-title" class="font-medium text-slate-700 mb-2">如何手动打开 TestFlight？</h3>
+        <ol id="help-info-list" class="list-decimal list-inside space-y-1">
+            <li>确保已安装 TestFlight 应用</li>
+            <li>如果在微信中，请先点击右上角在浏览器中打开</li>
+            <li>点击上方"手动跳转"按钮</li>
+            <li>当系统询问时，选择"打开"</li>
+            <li>在 TestFlight 中接受邀请</li>
+        </ol>
+    </div>
+</div>
 
-			setTimeout(() => {
-				if (isiOS) {
-					if (isWechat) {
-						statusText.textContent = "请在浏览器中打开以继续";
-						messageText.textContent = "微信浏览器限制了应用跳转功能";
-						document.querySelector('.loading-spin').classList.add('hidden');
-						// 显示iOS专用提示
-						wechatTipIos.classList.remove('hidden');
-						manualJump.classList.remove('hidden');
-						const iconContainer = document.querySelector('.w-24');
-						iconContainer.innerHTML = '<i class="fa fa-weixin text-4xl text-wechat bounce-icon"></i>';
-						iconContainer.classList.remove('bg-primary/10');
-						iconContainer.classList.add('bg-wechat/10');
-					} else {
-						// iOS非微信处理逻辑（保持不变）
-						statusText.textContent = "正在为您打开 TestFlight...";
-						messageText.textContent = "请稍等，正在尝试启动应用";
-						const appUrl = "itms-apps://itunes.apple.com/app/id6744488782?mt=8";
-						const webUrl = "itms-apps://itunes.apple.com/app/id6744488782?mt=8";
-						window.location.href = appUrl;
-						setTimeout(() => {
-							statusText.textContent = "无法自动打开 TestFlight";
-							messageText.textContent = "请手动点击下方按钮跳转";
-							document.querySelector('.loading-spin').classList.add('hidden');
-							manualJump.classList.remove('hidden');
-							const iconContainer = document.querySelector('.w-24');
-							iconContainer.innerHTML = '<i class="fa fa-exclamation-triangle text-4xl text-amber-500"></i>';
-							iconContainer.classList.remove('bg-primary/10');
-							iconContainer.classList.add('bg-amber-100');
-							jumpBtn.addEventListener('click', () => {
-								window.location.href = appUrl;
-								setTimeout(() => {
-									window.location.href = webUrl;
-								}, 1000);
-							});
-						}, 3000);
-					}
-					helpBtn.addEventListener('click', () => {
-						helpInfo.classList.toggle('hidden');
-					});
-				} else {
-					if (isWechat) {
-						// 微信环境下的Android设备：只显示引导，不自动跳转
-						statusText.textContent = "请在外部浏览器中打开以下载";
-						messageText.textContent = "微信浏览器限制APK文件下载";
-						document.querySelector('.loading-spin').classList.add('hidden');
-						wechatTipAndroid.classList.remove('hidden');
-						// 更换图标为微信提示样式
-						const iconContainer = document.querySelector('.w-24');
-						iconContainer.innerHTML = '<i class="fa fa-weixin text-4xl text-wechat bounce-icon"></i>';
-						iconContainer.classList.remove('bg-primary/10');
-						iconContainer.classList.add('bg-wechat/10');
-						
-					} else {
-						// 非微信环境的Android设备：正常自动跳转
-						statusText.textContent = "正在为您跳转至 Android 下载页面...";
-						messageText.textContent = "如果没有自动跳转，请点击下方按钮";
-						manualJumpAndroid.classList.remove('hidden');
-						// 自动跳转逻辑
-						setTimeout(() => {
-							window.location.href = "https://www.baidu.com";
-							// 备用链接
-							//setTimeout(() => {
-							//	window.location.href = "https://www.pgyer.com/xxx";
-							//}, 1500);
-						}, 1500);
+<!-- 多语言资源 -->
+<script>
+    // 多语言资源
+    const i18n = {
+        'zh-CN': { // 简体中文
+            detectingDevice: '正在检测您的设备...',
+            pleaseWait: '请稍候，我们将为您跳转到合适的下载页面',
+            pleaseOpenInBrowser: '请在浏览器中打开以继续',
+            wechatBlocked: '微信浏览器限制了应用跳转功能',
+            wechatTipIos: '微信浏览器可能限制跳转，请点击右上角 <i class="fa fa-ellipsis-h ml-1"></i>，选择"用默认浏览器打开"以继续',
+            wechatTipAndroid: '微信浏览器可能限制跳转，请点击右上角 <i class="fa fa-ellipsis-h ml-1"></i>，选择"在浏览器中打开"以继续',
+            openingTestFlight: '正在为您打开 TestFlight...',
+            tryingToLaunch: '请稍等，正在尝试启动应用',
+            cannotAutoOpen: '无法自动打开 TestFlight',
+            pleaseClickManual: '请手动点击下方按钮跳转',
+            pleaseOpenInBrowserForDownload: '请在外部浏览器中打开以下载',
+            wechatBlockedAPK: '微信浏览器限制APK文件下载',
+            redirectingToAndroid: '正在为您跳转至 Android 下载页面...',
+            ifNotRedirected: '如果没有自动跳转，请点击下方按钮',
+            manualJump: '手动跳转',
+            havingProblem: '遇到问题？',
+            howToOpenTestFlight: '如何手动打开 TestFlight？',
+            helpSteps: [
+                '确保已安装 TestFlight 应用',
+                '如果在微信中，请先点击右上角在浏览器中打开',
+                '点击上方"手动跳转"按钮',
+                '当系统询问时，选择"打开"',
+                '在 TestFlight 中接受邀请'
+            ]
+        },
+        'zh-TW': { // 繁体中文
+            detectingDevice: '正在檢測您的設備...',
+            pleaseWait: '請稍候，我們將為您跳轉到合適的下載頁面',
+            pleaseOpenInBrowser: '請在瀏覽器中打開以繼續',
+            wechatBlocked: '微信瀏覽器限制了應用跳轉功能',
+            wechatTipIos: '微信瀏覽器可能限制跳轉，請點擊右上角 <i class="fa fa-ellipsis-h ml-1"></i>，選擇"用預設瀏覽器打開"以繼續',
+            wechatTipAndroid: '微信瀏覽器可能限制跳轉，請點擊右上角 <i class="fa fa-ellipsis-h ml-1"></i>，選擇"在瀏覽器中打開"以繼續',
+            openingTestFlight: '正在為您打開 TestFlight...',
+            tryingToLaunch: '請稍等，正在嘗試啟動應用',
+            cannotAutoOpen: '無法自動打開 TestFlight',
+            pleaseClickManual: '請手動點擊下方按鈕跳轉',
+            pleaseOpenInBrowserForDownload: '請在外部瀏覽器中打開以下載',
+            wechatBlockedAPK: '微信瀏覽器限制APK文件下載',
+            redirectingToAndroid: '正在為您跳轉至 Android 下載頁面...',
+            ifNotRedirected: '如果沒有自動跳轉，請點擊下方按鈕',
+            manualJump: '手動跳轉',
+            havingProblem: '遇到問題？',
+            howToOpenTestFlight: '如何手動打開 TestFlight？',
+            helpSteps: [
+                '確保已安裝 TestFlight 應用',
+                '如果在微信中，請先點擊右上角在瀏覽器中打開',
+                '點擊上方"手動跳轉"按鈕',
+                '當系統詢問時，選擇"打開"',
+                '在 TestFlight 中接受邀請'
+            ]
+        },
+        'en': { // 英语
+            detectingDevice: 'Detecting your device...',
+            pleaseWait: 'Please wait, we are redirecting you to the appropriate download page',
+            pleaseOpenInBrowser: 'Please open in browser to continue',
+            wechatBlocked: 'WeChat browser restricts app redirection',
+            wechatTipIos: 'WeChat browser may restrict redirection, please click the top right <i class="fa fa-ellipsis-h ml-1"></i> and select "Open in default browser" to continue',
+            wechatTipAndroid: 'WeChat browser may restrict redirection, please click the top right <i class="fa fa-ellipsis-h ml-1"></i> and select "Open in browser" to continue',
+            openingTestFlight: 'Opening TestFlight for you...',
+            tryingToLaunch: 'Please wait, trying to launch the app',
+            cannotAutoOpen: 'Cannot open TestFlight automatically',
+            pleaseClickManual: 'Please click the button below to redirect manually',
+            pleaseOpenInBrowserForDownload: 'Please open in external browser to download',
+            wechatBlockedAPK: 'WeChat browser restricts APK file downloads',
+            redirectingToAndroid: 'Redirecting to Android download page...',
+            ifNotRedirected: 'If not redirected automatically, please click the button below',
+            manualJump: 'Manual Redirect',
+            havingProblem: 'Having problems?',
+            howToOpenTestFlight: 'How to open TestFlight manually?',
+            helpSteps: [
+                'Make sure TestFlight app is installed',
+                'If in WeChat, please open in browser first',
+                'Click the "Manual Redirect" button above',
+                'Select "Open" when the system asks',
+                'Accept the invitation in TestFlight'
+            ]
+        },
+        'ja': { // 日语
+            detectingDevice: 'デバイスを検出しています...',
+            pleaseWait: '適切なダウンロードページにリダイレクトしています。しばらくお待ちください',
+            pleaseOpenInBrowser: '続行するにはブラウザで開いてください',
+            wechatBlocked: 'WeChatブラウザはアプリのリダイレクトを制限しています',
+            wechatTipIos: 'WeChatブラウザはリダイレクトを制限する場合があります。右上の<i class="fa fa-ellipsis-h ml-1"></i>をクリックし、「デフォルトブラウザで開く」を選択してください',
+            wechatTipAndroid: 'WeChatブラウザはリダイレクトを制限する場合があります。右上の<i class="fa fa-ellipsis-h ml-1"></i>をクリックし、「ブラウザで開く」を選択してください',
+            openingTestFlight: 'TestFlightを開いています...',
+            tryingToLaunch: 'アプリを起動しようとしています。しばらくお待ちください',
+            cannotAutoOpen: 'TestFlightを自動的に開くことができません',
+            pleaseClickManual: '下のボタンをクリックして手動でリダイレクトしてください',
+            pleaseOpenInBrowserForDownload: 'ダウンロードするには外部ブラウザで開いてください',
+            wechatBlockedAPK: 'WeChatブラウザはAPKファイルのダウンロードを制限しています',
+            redirectingToAndroid: 'Androidダウンロードページにリダイレクトしています...',
+            ifNotRedirected: '自動的にリダイレクトされない場合は、下のボタンをクリックしてください',
+            manualJump: '手動リダイレクト',
+            havingProblem: '問題が発生しましたか？',
+            howToOpenTestFlight: 'TestFlightを手動で開く方法',
+            helpSteps: [
+                'TestFlightアプリがインストールされていることを確認してください',
+                'WeChat内の場合は、まずブラウザで開いてください',
+                '上の「手動リダイレクト」ボタンをクリックしてください',
+                'システムが尋ねたときに「開く」を選択してください',
+                'TestFlightで招待を受け入れてください'
+            ]
+        },
+        'es': { // 西班牙语
+            detectingDevice: 'Detectando su dispositivo...',
+            pleaseWait: 'Por favor espere, lo estamos redirigiendo a la página de descarga apropiada',
+            pleaseOpenInBrowser: 'Por favor abra en el navegador para continuar',
+            wechatBlocked: 'El navegador de WeChat restringe la redirección de aplicaciones',
+            wechatTipIos: 'El navegador de WeChat puede restringir la redirección, haga clic en la esquina superior derecha <i class="fa fa-ellipsis-h ml-1"></i> y seleccione "Abrir en navegador predeterminado" para continuar',
+            wechatTipAndroid: 'El navegador de WeChat puede restringir la redirección, haga clic en la esquina superior derecha <i class="fa fa-ellipsis-h ml-1"></i> y seleccione "Abrir en navegador" para continuar',
+            openingTestFlight: 'Abriendo TestFlight para usted...',
+            tryingToLaunch: 'Por favor espere, intentando iniciar la aplicación',
+            cannotAutoOpen: 'No se puede abrir TestFlight automáticamente',
+            pleaseClickManual: 'Por favor haga clic en el botón de abajo para redirigir manualmente',
+            pleaseOpenInBrowserForDownload: 'Por favor abra en un navegador externo para descargar',
+            wechatBlockedAPK: 'El navegador de WeChat restringe las descargas de archivos APK',
+            redirectingToAndroid: 'Redirigiendo a la página de descarga de Android...',
+            ifNotRedirected: 'Si no se redirige automáticamente, por favor haga clic en el botón de abajo',
+            manualJump: 'Redirección Manual',
+            havingProblem: '¿Tiene problemas?',
+            howToOpenTestFlight: '¿Cómo abrir TestFlight manualmente?',
+            helpSteps: [
+                'Asegúrese de que la aplicación TestFlight esté instalada',
+                'Si está en WeChat, por favor ábralo en el navegador primero',
+                'Haga clic en el botón "Redirección Manual" de arriba',
+                'Seleccione "Abrir" cuando el sistema le pregunte',
+                'Acepte la invitación en TestFlight'
+            ]
+        },
+        'it': { // 意大利语
+            detectingDevice: 'Rilevamento del dispositivo in corso...',
+            pleaseWait: 'Attendere, la stiamo reindirizzando alla pagina di download appropriata',
+            pleaseOpenInBrowser: 'Si prega di aprire nel browser per continuare',
+            wechatBlocked: 'Il browser WeChat limita il reindirizzamento delle app',
+            wechatTipIos: 'Il browser WeChat potrebbe limitare il reindirizzamento, fai clic in alto a destra <i class="fa fa-ellipsis-h ml-1"></i> e seleziona "Apri nel browser predefinito" per continuare',
+            wechatTipAndroid: 'Il browser WeChat potrebbe limitare il reindirizzamento, fai clic in alto a destra <i class="fa fa-ellipsis-h ml-1"></i> e seleziona "Apri nel browser" per continuare',
+            openingTestFlight: 'Apertura di TestFlight per te...',
+            tryingToLaunch: 'Attendere, tentativo di avvio dell\'app in corso',
+            cannotAutoOpen: 'Impossibile aprire TestFlight automaticamente',
+            pleaseClickManual: 'Fare clic sul pulsante in basso per reindirizzare manualmente',
+            pleaseOpenInBrowserForDownload: 'Si prega di aprire in un browser esterno per scaricare',
+            wechatBlockedAPK: 'Il browser WeChat limita il download di file APK',
+            redirectingToAndroid: 'Reindirizzamento alla pagina di download Android...',
+            ifNotRedirected: 'Se non viene reindirizzato automaticamente, fare clic sul pulsante in basso',
+            manualJump: 'Reindirizzamento Manuale',
+            havingProblem: 'Hai problemi?',
+            howToOpenTestFlight: 'Come aprire TestFlight manualmente?',
+            helpSteps: [
+                'Assicurati che l\'app TestFlight sia installata',
+                'Se sei in WeChat, aprilo prima nel browser',
+                'Fai clic sul pulsante "Reindirizzamento Manuale" sopra',
+                'Seleziona "Apri" quando il sistema lo richiede',
+                'Accetta l\'invito in TestFlight'
+            ]
+        },
+        'ru': { // 俄语
+            detectingDevice: 'Обнаружение вашего устройства...',
+            pleaseWait: 'Пожалуйста, подождите, мы перенаправляем вас на соответствующую страницу загрузки',
+            pleaseOpenInBrowser: 'Пожалуйста, откройте в браузере, чтобы продолжить',
+            wechatBlocked: 'Браузер WeChat ограничивает перенаправление приложений',
+            wechatTipIos: 'Браузер WeChat может ограничивать перенаправление, нажмите в правом верхнем углу <i class="fa fa-ellipsis-h ml-1"></i> и выберите "Открыть в браузере по умолчанию", чтобы продолжить',
+            wechatTipAndroid: 'Браузер WeChat может ограничивать перенаправление, нажмите в правом верхнем углу <i class="fa fa-ellipsis-h ml-1"></i> и выберите "Открыть в браузере", чтобы продолжить',
+            openingTestFlight: 'Открываем TestFlight для вас...',
+            tryingToLaunch: 'Пожалуйста, подождите, пытаемся запустить приложение',
+            cannotAutoOpen: 'Не удается автоматически открыть TestFlight',
+            pleaseClickManual: 'Пожалуйста, нажмите кнопку ниже для ручного перенаправления',
+            pleaseOpenInBrowserForDownload: 'Пожалуйста, откройте во внешнем браузере для загрузки',
+            wechatBlockedAPK: 'Браузер WeChat ограничивает загрузку файлов APK',
+            redirectingToAndroid: 'Перенаправление на страницу загрузки Android...',
+            ifNotRedirected: 'Если автоматическое перенаправление не произошло, нажмите кнопку ниже',
+            manualJump: 'Ручное Перенаправление',
+            havingProblem: 'Есть проблемы?',
+            howToOpenTestFlight: 'Как открыть TestFlight вручную?',
+            helpSteps: [
+                'Убедитесь, что приложение TestFlight установлено',
+                'Если вы в WeChat, сначала откройте в браузере',
+                'Нажмите кнопку "Ручное Перенаправление" выше',
+                'Выберите "Открыть", когда система запросит',
+                'Примите приглашение в TestFlight'
+            ]
+        },
+        'de': { // 德语
+            detectingDevice: 'Erkennung Ihres Geräts...',
+            pleaseWait: 'Bitte warten Sie, wir leiten Sie zur entsprechenden Download-Seite weiter',
+            pleaseOpenInBrowser: 'Bitte im Browser öffnen, um fortzufahren',
+            wechatBlocked: 'Der WeChat-Browser schränkt die App-Umleitung ein',
+            wechatTipIos: 'Der WeChat-Browser kann die Umleitung einschränken, klicken Sie oben rechts auf <i class="fa fa-ellipsis-h ml-1"></i> und wählen Sie "Im Standardbrowser öffnen", um fortzufahren',
+            wechatTipAndroid: 'Der WeChat-Browser kann die Umleitung einschränken, klicken Sie oben rechts auf <i class="fa fa-ellipsis-h ml-1"></i> und wählen Sie "Im Browser öffnen", um fortzufahren',
+            openingTestFlight: 'Öffne TestFlight für Sie...',
+            tryingToLaunch: 'Bitte warten Sie, versuche die App zu starten',
+            cannotAutoOpen: 'TestFlight kann nicht automatisch geöffnet werden',
+            pleaseClickManual: 'Bitte klicken Sie auf die Schaltfläche unten, um manuell umzuleiten',
+            pleaseOpenInBrowserForDownload: 'Bitte in einem externen Browser öffnen, um herunterzuladen',
+            wechatBlockedAPK: 'Der WeChat-Browser schränkt den Download von APK-Dateien ein',
+            redirectingToAndroid: 'Weiterleitung zur Android-Download-Seite...',
+            ifNotRedirected: 'Wenn keine automatische Weiterleitung erfolgt, klicken Sie bitte auf die Schaltfläche unten',
+            manualJump: 'Manuelle Weiterleitung',
+            havingProblem: 'Probleme?',
+            howToOpenTestFlight: 'Wie öffne ich TestFlight manuell?',
+            helpSteps: [
+                'Stellen Sie sicher, dass die TestFlight-App installiert ist',
+                'Wenn Sie in WeChat sind, öffnen Sie es zuerst im Browser',
+                'Klicken Sie auf die Schaltfläche "Manuelle Weiterleitung" oben',
+                'Wählen Sie "Öffnen", wenn das System fragt',
+                'Akzeptieren Sie die Einladung in TestFlight'
+            ]
+        },
+        'fr': { // 法语
+            detectingDevice: 'Détection de votre appareil...',
+            pleaseWait: 'Veuillez patienter, nous vous redirigeons vers la page de téléchargement appropriée',
+            pleaseOpenInBrowser: 'Veuillez ouvrir dans le navigateur pour continuer',
+            wechatBlocked: 'Le navigateur WeChat restreint la redirection des applications',
+            wechatTipIos: 'Le navigateur WeChat peut restreindre la redirection, veuillez cliquer en haut à droite <i class="fa fa-ellipsis-h ml-1"></i> et sélectionner "Ouvrir dans le navigateur par défaut" pour continuer',
+            wechatTipAndroid: 'Le navigateur WeChat peut restreindre la redirection, veuillez cliquer en haut à droite <i class="fa fa-ellipsis-h ml-1"></i> et sélectionner "Ouvrir dans le navigateur" pour continuer',
+            openingTestFlight: 'Ouverture de TestFlight pour vous...',
+            tryingToLaunch: 'Veuillez patienter, tentative de lancement de l\'application',
+            cannotAutoOpen: 'Impossible d\'ouvrir TestFlight automatiquement',
+            pleaseClickManual: 'Veuillez cliquer sur le bouton ci-dessous pour rediriger manuellement',
+            pleaseOpenInBrowserForDownload: 'Veuillez ouvrir dans un navigateur externe pour télécharger',
+            wechatBlockedAPK: 'Le navigateur WeChat restreint le téléchargement des fichiers APK',
+            redirectingToAndroid: 'Redirection vers la page de téléchargement Android...',
+            ifNotRedirected: 'Si la redirection automatique ne fonctionne pas, veuillez cliquer sur le bouton ci-dessous',
+            manualJump: 'Redirection Manuelle',
+            havingProblem: 'Des problèmes?',
+            howToOpenTestFlight: 'Comment ouvrir TestFlight manuellement?',
+            helpSteps: [
+                'Assurez-vous que l\'application TestFlight est installée',
+                'Si vous êtes dans WeChat, veuillez d\'abord l\'ouvrir dans le navigateur',
+                'Cliquez sur le bouton "Redirection Manuelle" ci-dessus',
+                'Sélectionnez "Ouvrir" lorsque le système le demande',
+                'Acceptez l\'invitation dans TestFlight'
+            ]
+        },
+        'et': { // 爱沙尼亚语
+            detectingDevice: 'Seadme tuvastamine...',
+            pleaseWait: 'Palun oodake, suuname teid vastavale allalaadimislehele',
+            pleaseOpenInBrowser: 'Jätkamiseks avage brauseris',
+            wechatBlocked: 'WeChati brauser piirab rakenduste ümbersuunamist',
+            wechatTipIos: 'WeChati brauser võib ümbersuunamist piirada, klõpsake paremas ülanurgas <i class="fa fa-ellipsis-h ml-1"></i> ja valige "Ava vaikebrauseris" jätkamiseks',
+            wechatTipAndroid: 'WeChati brauser võib ümbersuunamist piirada, klõpsake paremas ülanurgas <i class="fa fa-ellipsis-h ml-1"></i> ja valige "Ava brauseris" jätkamiseks',
+            openingTestFlight: 'TestFlighti avamine teie jaoks...',
+            tryingToLaunch: 'Palun oodake, rakenduse käivitamine',
+            cannotAutoOpen: 'TestFlighti ei saa automaatselt avada',
+            pleaseClickManual: 'Käsitsi ümbersuunamiseks klõpsake alloleval nupul',
+            pleaseOpenInBrowserForDownload: 'Allalaadimiseks avage välishrauseris',
+            wechatBlockedAPK: 'WeChati brauser piirab APK-failide allalaadimist',
+            redirectingToAndroid: 'Androidi allalaadimislehele suunamine...',
+            ifNotRedirected: 'Kui teid ei suunata automaatselt, klõpsake alloleval nupul',
+            manualJump: 'Käsitsi Ümbersuunamine',
+            havingProblem: 'Probleeme?',
+            howToOpenTestFlight: 'Kuidas TestFlighti käsitsi avada?',
+            helpSteps: [
+                'Veenduge, et TestFlighti rakendus on installitud',
+                'Kui olete WeChatis, avage see esmalt brauseris',
+                'Klõpsake ülaloleval nupul "Käsitsi Ümbersuunamine"',
+                'Valige "Ava", kui süsteem küsib',
+                'Võtke TestFlightis kutse vastu'
+            ]
+        },
+        'hu': { // 匈牙利语
+            detectingDevice: 'Eszköz észlelése...',
+            pleaseWait: 'Kérjük várjon, átirányítjuk a megfelelő letöltési oldalra',
+            pleaseOpenInBrowser: 'A folytatáshoz nyissa meg a böngészőben',
+            wechatBlocked: 'A WeChat böngésző korlátozza az alkalmazások átirányítását',
+            wechatTipIos: 'A WeChat böngésző korlátozhatja az átirányítást, kattintson a jobb felső sarokban lévő <i class="fa fa-ellipsis-h ml-1"></i> elemre, és válassza az "Alapértelmezett böngészőben megnyitás" lehetőséget a folytatáshoz',
+            wechatTipAndroid: 'A WeChat böngésző korlátozhatja az átirányítást, kattintson a jobb felső sarokban lévő <i class="fa fa-ellipsis-h ml-1"></i> elemre, és válassza a "Böngészőben megnyitás" lehetőséget a folytatáshoz',
+            openingTestFlight: 'TestFlight megnyitása az Ön számára...',
+            tryingToLaunch: 'Kérjük várjon, az alkalmazás indítása',
+            cannotAutoOpen: 'A TestFlight nem nyitható meg automatikusan',
+            pleaseClickManual: 'Kérjük, kattintson az alábbi gombra a kézi átirányításhoz',
+            pleaseOpenInBrowserForDownload: 'A letöltéshez nyissa meg külső böngészőben',
+            wechatBlockedAPK: 'A WeChat böngésző korlátozza az APK fájlok letöltését',
+            redirectingToAndroid: 'Átirányítás az Android letöltési oldalra...',
+            ifNotRedirected: 'Ha nem történik automatikus átirányítás, kérjük kattintson az alábbi gombra',
+            manualJump: 'Kézi Átirányítás',
+            havingProblem: 'Problémák?',
+            howToOpenTestFlight: 'Hogyan nyissam meg a TestFlight-et kézzel?',
+            helpSteps: [
+                'Győződjön meg róla, hogy a TestFlight alkalmazás telepítve van',
+                'Ha WeChat-ben van, először nyissa meg böngészőben',
+                'Kattintson a fenti "Kézi Átirányítás" gombra',
+                'Válassza a "Megnyitás" lehetőséget, amikor a rendszer kéri',
+                'Fogadja el a meghívót a TestFlight-ben'
+            ]
+        },
+        'th': { // 泰语
+            detectingDevice: 'กำลังตรวจสอบอุปกรณ์ของคุณ...',
+            pleaseWait: 'กรุณารอสักครู่ เรากำลังนำคุณไปยังหน้าการดาวน์โหลดที่เหมาะสม',
+            pleaseOpenInBrowser: 'กรุณาเปิดในเบราว์เซอร์เพื่อดำเนินการต่อ',
+            wechatBlocked: 'เบราว์เซอร์ WeChat จำกัดการเปลี่ยนเส้นทางแอป',
+            wechatTipIos: 'เบราว์เซอร์ WeChat อาจจำกัดการเปลี่ยนเส้นทาง กรุณาคลิกที่มุมขวาบน <i class="fa fa-ellipsis-h ml-1"></i> และเลือก "เปิดในเบราว์เซอร์เริ่มต้น" เพื่อดำเนินการต่อ',
+            wechatTipAndroid: 'เบราว์เซอร์ WeChat อาจจำกัดการเปลี่ยนเส้นทาง กรุณาคลิกที่มุมขวาบน <i class="fa fa-ellipsis-h ml-1"></i> และเลือก "เปิดในเบราว์เซอร์" เพื่อดำเนินการต่อ',
+            openingTestFlight: 'กำลังเปิด TestFlight สำหรับคุณ...',
+            tryingToLaunch: 'กรุณารอสักครู่ กำลังพยายามเปิดแอปพลิเคชัน',
+            cannotAutoOpen: 'ไม่สามารถเปิด TestFlight อัตโนมัติ',
+            pleaseClickManual: 'กรุณาคลิกปุ่มด้านล่างเพื่อเปลี่ยนเส้นทางด้วยตนเอง',
+            pleaseOpenInBrowserForDownload: 'กรุณาเปิดในเบราว์เซอร์ภายนอกเพื่อดาวน์โหลด',
+            wechatBlockedAPK: 'เบราว์เซอร์ WeChat จำกัดการดาวน์โหลดไฟล์ APK',
+            redirectingToAndroid: 'กำลังเปลี่ยนเส้นทางไปยังหน้าการดาวน์โหลด Android...',
+            ifNotRedirected: 'หากไม่มีการเปลี่ยนเส้นทางโดยอัตโนมัติ กรุณาคลิกปุ่มด้านล่าง',
+            manualJump: 'เปลี่ยนเส้นทางด้วยตนเอง',
+            havingProblem: 'มีปัญหา?',
+            howToOpenTestFlight: 'วิธีเปิด TestFlight ด้วยตนเอง?',
+            helpSteps: [
+                'ตรวจสอบให้แน่ใจว่าได้ติดตั้งแอป TestFlight แล้ว',
+                'หากอยู่ใน WeChat กรุณาเปิดในเบราว์เซอร์ก่อน',
+                'คลิกปุ่ม "เปลี่ยนเส้นทางด้วยตนเอง" ด้านบน',
+                'เลือก "เปิด" เมื่อระบบถาม',
+                'ยอมรับคำเชิญใน TestFlight'
+            ]
+        }
+    };
 
-						// 手动跳转按钮
-						jumpBtnAndroid.addEventListener('click', () => {
-							window.location.href = "https://www.baidu.com";
-						});
-					}
-				}
-			}, 1000);
-		};
-	</script>
+    // 获取用户语言
+    function getUserLanguage() {
+        const browserLang = navigator.language || navigator.userLanguage;
+        const supportedLangs = Object.keys(i18n);
+
+        // 完全匹配
+        if (supportedLangs.includes(browserLang)) {
+            return browserLang;
+        }
+
+        // 只匹配语言代码（前两位）
+        const langCode = browserLang.split('-')[0];
+        for (const lang of supportedLangs) {
+            if (lang.startsWith(langCode)) {
+                return lang;
+            }
+        }
+
+        // 默认返回英语
+        return 'en';
+    }
+
+    // 设置页面文本
+    function setPageText(lang) {
+        const langData = i18n[lang];
+
+        // 设置初始文本
+        document.getElementById('status-text').textContent = langData.detectingDevice;
+        document.getElementById('message-text').textContent = langData.pleaseWait;
+
+        // 设置微信提示文本
+        document.getElementById('wechat-tip-ios-text').innerHTML = langData.wechatTipIos;
+        document.getElementById('wechat-tip-android-text').innerHTML = langData.wechatTipAndroid;
+
+        // 设置按钮文本
+        document.getElementById('manual-jump-text').textContent = langData.manualJump;
+        document.getElementById('help-btn-text').textContent = langData.havingProblem;
+        document.getElementById('manual-jump-android-text').textContent = langData.manualJump;
+
+        // 设置帮助信息
+        document.getElementById('help-info-title').textContent = langData.howToOpenTestFlight;
+
+        const helpList = document.getElementById('help-info-list');
+        helpList.innerHTML = '';
+        langData.helpSteps.forEach(step => {
+            const li = document.createElement('li');
+            li.textContent = step;
+            helpList.appendChild(li);
+        });
+
+        // 存储语言数据供后续使用
+        window.currentLang = langData;
+    }
+</script>
+
+<script>
+    window.onload = function () {
+        // 设置语言
+        const userLang = getUserLanguage();
+        setPageText(userLang);
+
+        const userAgent = navigator.userAgent;
+        const statusText = document.getElementById('status-text');
+        const messageText = document.getElementById('message-text');
+        const loadingContainer = document.getElementById('loading-container');
+        const manualJump = document.getElementById('manual-jump');
+        const manualJumpAndroid = document.getElementById('manual-jump-android');
+        const helpTip = document.getElementById('help-tip');
+        const jumpBtn = document.getElementById('jump-btn');
+        const jumpBtnAndroid = document.getElementById('jump-btn-android');
+        const helpBtn = document.getElementById('help-btn');
+        const helpInfo = document.getElementById('help-info');
+        // 获取两个不同的微信提示元素
+        const wechatTipIos = document.getElementById('wechat-tip-ios');
+        const wechatTipAndroid = document.getElementById('wechat-tip-android');
+        const isWechat = /MicroMessenger/i.test(userAgent);
+        // 新增系统类型判断
+        const isiOS = /iPhone|iPad|iPod/i.test(userAgent);
+        const isAndroid = /Android|Linux/i.test(userAgent);
+
+        setTimeout(() => {
+            if (isiOS) {
+                if (isWechat) {
+                    statusText.textContent = window.currentLang.pleaseOpenInBrowser;
+                    messageText.textContent = window.currentLang.wechatBlocked;
+                    document.querySelector('.loading-spin').classList.add('hidden');
+                    // 显示iOS专用提示
+                    wechatTipIos.classList.remove('hidden');
+                    manualJump.classList.remove('hidden');
+                    const iconContainer = document.querySelector('.w-24');
+                    iconContainer.innerHTML = '<i class="fa fa-weixin text-4xl text-wechat bounce-icon"></i>';
+                    iconContainer.classList.remove('bg-primary/10');
+                    iconContainer.classList.add('bg-wechat/10');
+                } else {
+                    // iOS非微信处理逻辑（保持不变）
+                    statusText.textContent = window.currentLang.openingTestFlight;
+                    messageText.textContent = window.currentLang.tryingToLaunch;
+                    const appUrl = "itms-apps://itunes.apple.com/app/id6744488782?mt=8";
+                    const webUrl = "itms-apps://itunes.apple.com/app/id6744488782?mt=8";
+                    window.location.href = appUrl;
+                    setTimeout(() => {
+                        statusText.textContent = window.currentLang.cannotAutoOpen;
+                        messageText.textContent = window.currentLang.pleaseClickManual;
+                        document.querySelector('.loading-spin').classList.add('hidden');
+                        manualJump.classList.remove('hidden');
+                        const iconContainer = document.querySelector('.w-24');
+                        iconContainer.innerHTML = '<i class="fa fa-exclamation-triangle text-4xl text-amber-500"></i>';
+                        iconContainer.classList.remove('bg-primary/10');
+                        iconContainer.classList.add('bg-amber-100');
+                        jumpBtn.addEventListener('click', () => {
+                            window.location.href = appUrl;
+                            setTimeout(() => {
+                                window.location.href = webUrl;
+                            }, 1000);
+                        });
+                    }, 3000);
+                }
+                helpBtn.addEventListener('click', () => {
+                    helpInfo.classList.toggle('hidden');
+                });
+            } else {
+                if (isWechat) {
+                    // 微信环境下的Android设备：只显示引导，不自动跳转
+                    statusText.textContent = window.currentLang.pleaseOpenInBrowserForDownload;
+                    messageText.textContent = window.currentLang.wechatBlockedAPK;
+                    document.querySelector('.loading-spin').classList.add('hidden');
+                    wechatTipAndroid.classList.remove('hidden');
+                    // 更换图标为微信提示样式
+                    const iconContainer = document.querySelector('.w-24');
+                    iconContainer.innerHTML = '<i class="fa fa-weixin text-4xl text-wechat bounce-icon"></i>';
+                    iconContainer.classList.remove('bg-primary/10');
+                    iconContainer.classList.add('bg-wechat/10');
+
+                } else {
+                    // 非微信环境的Android设备：正常自动跳转
+                    statusText.textContent = window.currentLang.redirectingToAndroid;
+                    messageText.textContent = window.currentLang.ifNotRedirected;
+                    manualJumpAndroid.classList.remove('hidden');
+                    // 自动跳转逻辑
+                    setTimeout(() => {
+                        window.location.href = "https://play.google.com/store/apps/details?id=com.momax.wearsense.app";
+                        // 备用链接
+                        //setTimeout(() => {
+                        //	window.location.href = "https://www.pgyer.com/xxx";
+                        //}, 1500);
+                    }, 1500);
+
+                    // 手动跳转按钮
+                    jumpBtnAndroid.addEventListener('click', () => {
+                        window.location.href = "https://play.google.com/store/apps/details?id=com.momax.wearsense.app";
+                    });
+                }
+            }
+        }, 1000);
+    };
+</script>
 </body>
 </html>
-
